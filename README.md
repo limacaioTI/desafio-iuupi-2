@@ -21,7 +21,7 @@ Operações com a Carteira para recarga e saque.
    executar o aplicativo.
 4. Utilize **Flutter** `3.44.0` ou superior para desenvolver o app.
 5. Ao concluir, envie o link do fork para parceriacom@iuupi.com.br.
-6. O prazo de entrega é até **segunda-feira, 10/08/2026**.
+6. O prazo de entrega é até **segunda-feira, 24/08/2026**.
 
 ## Escopo do aplicativo
 
