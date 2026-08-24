@@ -3,11 +3,8 @@ import 'dart:convert';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class StorageService {
-  /// Sufixo aplicado aos nomes das boxes, usado nos testes para isolar cada
-  /// instância (evita colisão entre testes que rodam boxes com o mesmo nome).
   final String _boxSuffix;
 
-  // ignore: prefer_initializing_formals
   StorageService({String boxSuffix = ''}) : _boxSuffix = boxSuffix;
 
   String get _sessionBoxName => 'session$_boxSuffix';
@@ -24,9 +21,6 @@ class StorageService {
   late final Box _cacheBox;
   late final Box _settingsBox;
 
-  /// [useFlutterInit] é `false` nos testes, onde o Hive já foi inicializado
-  /// manualmente com `Hive.init(diretório temporário)` — sem precisar do
-  /// path_provider, que depende de um binding de plataforma real.
   Future<void> init({bool useFlutterInit = true}) async {
     if (useFlutterInit) {
       await Hive.initFlutter();
