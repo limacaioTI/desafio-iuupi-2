@@ -11,13 +11,18 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   Future<void> pumpLoginScreen(WidgetTester tester) async {
-    final storage = await createTestStorageService();
-    final auth = AuthProvider(ApiClient(), storage);
+    // O Hive faz I/O real (arquivo em disco); dentro de um testWidgets isso
+    // precisa rodar via runAsync, porque o binding de teste usa um clock
+    // falso que nunca destrava um Future de I/O real feito diretamente.
+    final auth = await tester.runAsync(() async {
+      final storage = await createTestStorageService();
+      return AuthProvider(ApiClient(), storage);
+    });
 
     await tester.pumpWidget(
       MaterialApp(
         home: ChangeNotifierProvider<AuthProvider>.value(
-          value: auth,
+          value: auth!,
           child: const LoginScreen(),
         ),
       ),

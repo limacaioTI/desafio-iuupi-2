@@ -69,13 +69,16 @@ class OfflineBanner extends StatelessWidget {
         ? ' (atualizado em ${cachedAt!.hour.toString().padLeft(2, '0')}:${cachedAt!.minute.toString().padLeft(2, '0')})'
         : '';
     final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      width: double.infinity,
-      color: colorScheme.tertiaryContainer,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Text(
-        'Sem conexão. Exibindo os últimos dados salvos$suffix.',
-        style: TextStyle(color: colorScheme.onTertiaryContainer, fontSize: 12),
+    return Semantics(
+      liveRegion: true,
+      child: Container(
+        width: double.infinity,
+        color: colorScheme.tertiaryContainer,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Text(
+          'Sem conexão. Exibindo os últimos dados salvos$suffix.',
+          style: TextStyle(color: colorScheme.onTertiaryContainer, fontSize: 12),
+        ),
       ),
     );
   }

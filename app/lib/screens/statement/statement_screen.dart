@@ -82,12 +82,34 @@ class _StatementScreenState extends State<StatementScreen> {
         itemCount: provider.items.length + 1,
         itemBuilder: (context, index) {
           if (index == provider.items.length) {
-            return provider.status == TransactionsStatus.loadingMore
-                ? const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                : const SizedBox.shrink();
+            if (provider.status == TransactionsStatus.loadingMore) {
+              return const Padding(
+                padding: EdgeInsets.all(16),
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+
+            if (provider.status == TransactionsStatus.loadMoreError) {
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Text(
+                      provider.errorMessage ?? 'Não foi possível carregar mais itens.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Theme.of(context).colorScheme.error),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton(
+                      onPressed: provider.loadMore,
+                      child: const Text('Tentar novamente'),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return const SizedBox.shrink();
           }
 
           final transaction = provider.items[index];

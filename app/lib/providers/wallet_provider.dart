@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../core/api_client.dart';
+import '../core/api_exception.dart';
 import '../core/storage_service.dart';
 import '../models/transaction.dart';
 import '../models/user.dart';
@@ -41,21 +42,26 @@ class WalletProvider extends ChangeNotifier {
       );
 
       status = WalletStatus.success;
-    } catch (_) {
-      _loadFromCache();
+    } on ApiException catch (e) {
+      _loadFromCache(fallbackMessage: e.message);
+    } on NetworkException catch (e) {
+      _loadFromCache(
+        fallbackMessage: e.kind == NetworkErrorKind.timeout
+            ? 'A conexão demorou demais para responder. Tente novamente.'
+            : 'Sem conexão com o servidor. Verifique sua internet.',
+      );
     }
 
     notifyListeners();
   }
 
-  void _loadFromCache() {
+  void _loadFromCache({required String fallbackMessage}) {
     final cachedUser = _storage.cachedUser;
     final cachedTransactions = _storage.cachedTransactions;
 
     if (cachedUser == null) {
       status = WalletStatus.error;
-      errorMessage =
-          'Não foi possível carregar seus dados. Verifique a conexão.';
+      errorMessage = fallbackMessage;
       return;
     }
 

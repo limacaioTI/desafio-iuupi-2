@@ -38,6 +38,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.person_outline),
+            tooltip: 'Perfil',
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const ProfileScreen()),
             ),
@@ -82,18 +83,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           Row(
             children: [
-              CircleAvatar(
-                radius: 28,
-                backgroundColor: Colors.grey.shade300,
-                child: ClipOval(
-                  child: CachedNetworkImage(
-                    imageUrl: user.avatarUrl ?? '',
-                    width: 56,
-                    height: 56,
-                    fit: BoxFit.cover,
-                    errorWidget: (context, url, error) => const Icon(Icons.person),
-                    placeholder: (context, url) =>
-                        const CircularProgressIndicator(strokeWidth: 2),
+              Semantics(
+                label: 'Foto de ${user.name}',
+                image: true,
+                child: CircleAvatar(
+                  radius: 28,
+                  backgroundColor: Colors.grey.shade300,
+                  child: ClipOval(
+                    child: CachedNetworkImage(
+                      imageUrl: user.avatarUrl ?? '',
+                      width: 56,
+                      height: 56,
+                      fit: BoxFit.cover,
+                      errorWidget: (context, url, error) => const Icon(Icons.person),
+                      placeholder: (context, url) =>
+                          const CircularProgressIndicator(strokeWidth: 2),
+                    ),
                   ),
                 ),
               ),

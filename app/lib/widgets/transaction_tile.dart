@@ -25,6 +25,7 @@ class TransactionTile extends StatelessWidget {
         child: Icon(
           isCredit ? Icons.arrow_downward : Icons.arrow_upward,
           color: color,
+          semanticLabel: isCredit ? 'Crédito' : 'Débito',
         ),
       ),
       title: Text(transaction.description),

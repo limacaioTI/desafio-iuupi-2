@@ -1,18 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
+import '../../core/api_client.dart';
 import '../../models/transaction.dart';
 
 final _currencyFormat = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
 final _dateFormat = DateFormat('dd/MM/yyyy \'às\' HH:mm');
 
-class TransactionDetailScreen extends StatelessWidget {
+/// Recebe a transação já carregada da lista (para exibir instantaneamente,
+/// sem loading) e, em paralelo, busca `GET /transactions/:id` para exercitar
+/// o endpoint obrigatório e refletir qualquer dado mais recente. Uma falha
+/// nessa busca em segundo plano é ignorada silenciosamente: o dado da lista
+/// já é suficiente para a tela.
+class TransactionDetailScreen extends StatefulWidget {
   final Transaction transaction;
 
   const TransactionDetailScreen({super.key, required this.transaction});
 
   @override
+  State<TransactionDetailScreen> createState() => _TransactionDetailScreenState();
+}
+
+class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
+  late Transaction _transaction = widget.transaction;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _refresh());
+  }
+
+  Future<void> _refresh() async {
+    try {
+      final response = await context
+          .read<ApiClient>()
+          .get('/transactions/${widget.transaction.id}');
+      if (!mounted) return;
+      setState(() => _transaction = Transaction.fromJson(response));
+    } catch (_) {
+      // Mantém o dado já exibido; a lista de origem já é confiável.
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final transaction = _transaction;
     final isCredit = transaction.type == TransactionType.credit;
     final color = isCredit ? Colors.green.shade700 : Colors.red.shade700;
 

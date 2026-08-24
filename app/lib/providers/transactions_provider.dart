@@ -1,11 +1,19 @@
 import 'package:flutter/foundation.dart';
 
 import '../core/api_client.dart';
+import '../core/api_exception.dart';
 import '../core/storage_service.dart';
 import '../models/paginated_transactions.dart';
 import '../models/transaction.dart';
 
-enum TransactionsStatus { loading, success, error, loadingMore, offlineWithCache }
+enum TransactionsStatus {
+  loading,
+  success,
+  error,
+  loadingMore,
+  loadMoreError,
+  offlineWithCache,
+}
 
 enum TransactionFilter { all, credit, debit }
 
@@ -59,23 +67,42 @@ class TransactionsProvider extends ChangeNotifier {
       _hasNextPage = page.pagination.hasNextPage;
       _page++;
       status = TransactionsStatus.success;
-    } catch (_) {
-      if (replace && _page == 1 && filter == TransactionFilter.all) {
-        _loadFromCache();
-      } else {
-        status = TransactionsStatus.error;
-        errorMessage = 'Não foi possível carregar o extrato. Tente novamente.';
-      }
+    } on ApiException catch (e) {
+      _handleFetchFailure(replace: replace, fallbackMessage: e.message);
+    } on NetworkException catch (e) {
+      _handleFetchFailure(
+        replace: replace,
+        fallbackMessage: e.kind == NetworkErrorKind.timeout
+            ? 'A conexão demorou demais para responder. Tente novamente.'
+            : 'Sem conexão com o servidor. Verifique sua internet.',
+      );
     }
 
     notifyListeners();
   }
 
-  void _loadFromCache() {
+  void _handleFetchFailure({
+    required bool replace,
+    required String fallbackMessage,
+  }) {
+    if (replace && _page == 1 && filter == TransactionFilter.all) {
+      _loadFromCache(fallbackMessage: fallbackMessage);
+    } else if (!replace && items.isNotEmpty) {
+      // Falha ao buscar mais itens: mantém a lista já exibida e permite
+      // tentar de novo em vez de descartar o que já foi carregado.
+      status = TransactionsStatus.loadMoreError;
+      errorMessage = fallbackMessage;
+    } else {
+      status = TransactionsStatus.error;
+      errorMessage = fallbackMessage;
+    }
+  }
+
+  void _loadFromCache({required String fallbackMessage}) {
     final cached = _storage.cachedTransactions;
     if (cached == null || cached.isEmpty) {
       status = TransactionsStatus.error;
-      errorMessage = 'Não foi possível carregar o extrato. Tente novamente.';
+      errorMessage = fallbackMessage;
       return;
     }
 
