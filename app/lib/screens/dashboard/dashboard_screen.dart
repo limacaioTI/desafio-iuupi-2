@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/transaction.dart';
 import '../../providers/wallet_provider.dart';
 import '../../widgets/balance_card.dart';
 import '../../widgets/responsive_container.dart';
@@ -9,6 +10,7 @@ import '../../widgets/state_views.dart';
 import '../../widgets/transaction_tile.dart';
 import '../profile/profile_screen.dart';
 import '../statement/statement_screen.dart';
+import '../wallet_ops/wallet_operation_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -106,6 +108,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           const SizedBox(height: 20),
           BalanceCard(balance: user.balance),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          const WalletOperationScreen(type: TransactionType.credit),
+                    ),
+                  ),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Recarga'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          const WalletOperationScreen(type: TransactionType.debit),
+                    ),
+                  ),
+                  icon: const Icon(Icons.remove),
+                  label: const Text('Saque'),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 24),
           Text(
             'Últimas movimentações',

@@ -8,13 +8,15 @@ import 'package:http/http.dart' as http;
 import 'api_exception.dart';
 
 class ApiClient {
-  static const _timeout = Duration(seconds: 8);
+  static const _defaultTimeout = Duration(seconds: 8);
 
   final http.Client _httpClient;
+  final Duration _timeout;
   String? _token;
 
-  ApiClient({http.Client? httpClient})
-    : _httpClient = httpClient ?? http.Client();
+  ApiClient({http.Client? httpClient, Duration? timeout})
+    : _httpClient = httpClient ?? http.Client(),
+      _timeout = timeout ?? _defaultTimeout;
 
   static String get baseUrl {
     if (kIsWeb) return 'http://localhost:3001';
